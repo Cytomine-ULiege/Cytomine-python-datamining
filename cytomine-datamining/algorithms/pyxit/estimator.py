@@ -34,8 +34,7 @@ from scipy.sparse import csr_matrix
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.externals.joblib import Parallel, delayed, cpu_count
 from sklearn.utils import check_random_state
-
-from _estimator import inplace_csr_column_scale_max
+from sklearn.preprocessing import normalize
 
 MAX_INT = np.iinfo(np.int32).max
 
@@ -453,7 +452,7 @@ class PyxitClassifier(BaseEstimator, ClassifierMixin):
 
     # Propagates subwindows into the ERT model and compute subwindow frequencies in terminal nodes
     # ET-FL method see Maree et al., TR 2014
-    def transform(self, X, _X=None, reset=False):
+    def transform(self, X, _X=None):
         # Predict proba
         if self.verbose > 0:
             print("[estimator.PyxitClassifier.transform] Transforming into leaf features")
@@ -489,9 +488,4 @@ class PyxitClassifier(BaseEstimator, ClassifierMixin):
         __X = csr_matrix((inc, (row, col)), shape=(n_samples, node_count), dtype=np.float32)
 
         # Scale features from [0, max] to [0, 1]
-        if reset:
-            self.maxs = None
-
-        __X, self.maxs = inplace_csr_column_scale_max(__X, self.maxs)
-
-        return __X
+        return normalize(__X, norm="max", axis=0, copy=False)
