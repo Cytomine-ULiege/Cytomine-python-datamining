@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 
 #
 # * Copyright (c) 2009-2015. Authors: see NOTICE file.
@@ -20,7 +21,6 @@
 __author__          = "Gilles Louppe"
 __contributors__    = ["Marée Raphaël <raphael.maree@ulg.ac.be>", "Stévens Benjamin <b.stevens@ulg.ac.be>"]
 __copyright__       = "Copyright 2010-2015 University of Liège, Belgium, http://www.cytomine.be/"
-
 
 import numpy as np
 import os
@@ -49,7 +49,7 @@ def build_from_dir(directory, map_classes = None):
                 else:
                     y.append(c)
             except IOError:
-                print "warning filename %s is not an image" % os.path.join(directory, c, _file)
+                print("warning filename %s is not an image" % os.path.join(directory, c, _file))
 
     X = np.array(X)
     y = np.array(y)
