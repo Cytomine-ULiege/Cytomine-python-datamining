@@ -232,7 +232,7 @@ def _partition_images(n_jobs, n_images):
     else:
         n_jobs = min(n_jobs, n_images)
 
-    counts = [n_images / n_jobs] * n_jobs
+    counts = [n_images // n_jobs] * n_jobs
 
     for i in range(n_images % n_jobs):
         counts[i] += 1
