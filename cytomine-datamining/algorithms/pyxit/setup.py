@@ -1,4 +1,3 @@
-import numpy
 from numpy.distutils.misc_util import Configuration
 
 
