@@ -442,7 +442,7 @@ class PyxitClassifier(BaseEstimator, ClassifierMixin):
             for i in range(X.shape[0]):
                 y[i] = np.sum(_y[i * self.n_subwindows:(i + 1) * self.n_subwindows], axis=0) / self.n_subwindows
 
-        except:
+        except AttributeError:
             _y = self.base_estimator.predict(_X)
 
             for i in range(X.shape[0]):
