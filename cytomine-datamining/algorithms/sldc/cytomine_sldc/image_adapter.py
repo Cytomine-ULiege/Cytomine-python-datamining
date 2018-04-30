@@ -1,45 +1,15 @@
 # -*- coding: utf-8 -*-
-import cStringIO
 import os
 import numpy as np
 import PIL
 from PIL.Image import fromarray
-from PIL import Image as PILImage
 from cytomine.models import ImageInstance
 from shapely.geometry import Polygon, box
 from sldc import TileExtractionException, alpha_rasterize, Image, Tile, TileBuilder
 
 
 __author__ = "Mormont Romain <romain.mormont@gmail.com>"
-__version__ = "0.1"
-
-
-def _get_crop(cytomine, image_inst, geometry):
-    """
-    Download the crop corresponding to bounds on the given image instance
-    from cytomine
-
-    Parameters
-    ----------
-    cytomine : :class:`Cytomine`
-        The cilent holding the communication
-    image_inst : :class:`ImageInstance` or image instance id (int)
-        The image on which to extract crop
-    geometry: tuple (int, int, int, int)
-        The information about the geometry of the crop structured as (offset_x, offset_y, width, height)
-    zoom: int (optional, default=0)
-        The zoom to apply to the image
-    """
-    bounds = dict()
-    bounds["x"], bounds["y"], bounds["w"], bounds["h"] = geometry
-    url = "{}{}{}{}".format(cytomine._Cytomine__protocol, cytomine._Cytomine__host, cytomine._Cytomine__base_path,
-                            image_inst.get_crop_url(bounds))
-    resp, content = cytomine.fetch_url(url)
-    if resp.status != 200:
-        raise IOError("Couldn't fetch the crop for image {} and bounds {} from server at url {} (status : {}).".format(image_inst.id, geometry, url, resp.status))
-    tmp = cStringIO.StringIO(content)
-    pil_image = PILImage.open(tmp)  # fetch the image but this process inverts R and B channels (?)
-    return np.asarray(pil_image)[:, :, (2, 1, 0)]  # so reorder to channel to have a valid RGB image
+__version__ = "1.0"
 
 
 class CytomineSlide(Image):
@@ -122,7 +92,7 @@ class CytomineTile(Tile):
             cache_filename = cache_filename_format.format(id=image_instance.id, x=x, y=y, w=width, h=height)
             cache_path = os.path.join(self._working_path, cache_filename)
             if not os.path.exists(cache_path):
-                if not ImageInstance().window(x=x, y=y, w=width, h=height, dest_pattern=cache_filename_format):
+                if not image_instance.window(x=x, y=y, w=width, h=height, dest_pattern=cache_path):
                     raise TileExtractionException("Cannot fetch tile at for "
                                                   "'{}'.".format(cache_filename_format.split(".", 1)[0]))
 
