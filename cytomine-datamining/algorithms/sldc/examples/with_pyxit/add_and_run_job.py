@@ -5,25 +5,14 @@ import os
 import cv2
 import numpy as np
 from cytomine import Cytomine, CytomineJob
-from cytomine.models import AlgoAnnotationTerm
+from cytomine.models import AlgoAnnotationTerm, Annotation
 from cytomine_sldc import CytomineSlide, CytomineTileBuilder
 from shapely.affinity import affine_transform, translate
 from sklearn.utils import check_random_state
-from sldc import DispatchingRule, ImageWindow, Loggable, Logger, Segmenter, StandardOutputLogger, SLDCWorkflowBuilder
+from sldc import DispatchingRule, ImageWindow, Loggable, Logger, Segmenter, StandardOutputLogger, SLDCWorkflowBuilder, \
+    PolygonClassifier
 
 from pyxit_classifier import PyxitClassifierAdapter
-
-
-def _upload_annotation(cytomine, img_inst, polygon, label=None, proba=1.0):
-    """Upload an annotation and its term (if provided)"""
-    image_id = img_inst.id
-
-    # Transform polygon to match cytomine (bottom-left) origin point
-    polygon = affine_transform(polygon, [1, 0, 0, -1, 0, img_inst.height])
-
-    annotation = cytomine.add_annotation(polygon.wkt, image_id)
-    if label is not None and annotation is not None:
-        cytomine.add_annotation_term(annotation.id, label, label, proba, annotation_term_model=AlgoAnnotationTerm)
 
 
 class DemoSegmenter(Segmenter):
@@ -50,6 +39,15 @@ class ValidAreaRule(DispatchingRule):
         return self._min_area < polygon.area
 
 
+# TODO tmp
+class ConstantClassifier(PolygonClassifier):
+    def predict(self, image, polygon):
+        return self._label
+
+    def __init__(self, label=526928):
+        self._label = label
+#
+
 def main(argv):
     with CytomineJob.from_cli(argv) as job:
         if not os.path.exists(job.parameters.working_path):
@@ -57,7 +55,7 @@ def main(argv):
 
         # create workflow component
         logger = StandardOutputLogger(Logger.INFO)
-        random_state = check_random_state(job.parameters.rseed)
+        random_state = check_random_state(int(job.parameters.rseed))
         tile_builder = CytomineTileBuilder(working_path=job.parameters.working_path)
         segmenter = DemoSegmenter(job.parameters.threshold)
         area_rule = ValidAreaRule(job.parameters.min_area)
@@ -78,23 +76,19 @@ def main(argv):
         builder.add_classifier(area_rule, classifier, dispatching_label="valid")
         workflow = builder.get()
 
-        slide = CytomineSlide(job.parameters.cytomine_id_image)
+        slide = CytomineSlide(job.parameters.cytomine_image_id)
         results = workflow.process(slide)
 
         # Upload results
-        for polygon, dispatch, cls, proba in results:
-            if cls is not None:
+        for polygon, label, proba, dispatch in results:
+            if label is not None:
                 # if image is a window, the polygon must be translated
                 if isinstance(slide, ImageWindow):
                     polygon = translate(polygon, slide.abs_offset_x, slide.abs_offset_y)
                 # actually upload the annotation
-                _upload_annotation(
-                    self._cytomine,
-                    slide.image_instance,
-                    polygon,
-                    label=cls,
-                    proba=proba
-                )
+
+                annotation = Annotation(location=polygon.wkt, id_image=slide.image_instance.id).save()
+                AlgoAnnotationTerm(id_annotation=annotation.id, id_term=label, rate=proba).save()
 
 
 if __name__ == "__main__":
