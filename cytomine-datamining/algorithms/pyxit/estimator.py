@@ -22,7 +22,6 @@ __contributors__ = ["Marée Raphaël <raphael.maree@ulg.ac.be>", "Stévens Benja
 __copyright__ = "Copyright 2010-2015 University of Liège, Belgium, http://www.cytomine.be/"
 
 import numpy as np
-import math
 import sys
 
 try:
@@ -30,14 +29,12 @@ try:
 except:
     from PIL import Image
 
-from scipy.sparse import csr_matrix, vstack
-from scipy.stats.mstats import mode
+from scipy.sparse import csr_matrix
 
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.externals.joblib import Parallel, delayed, cpu_count
 from sklearn.utils import check_random_state
-
-from _estimator import inplace_csr_column_scale_max
+from sklearn.preprocessing import normalize
 
 MAX_INT = np.iinfo(np.int32).max
 
@@ -110,7 +107,7 @@ def _raw_to_hsv(raw):
 
 
 def _raw_to_gray(raw):
-    # print "raw shape: %d" %raw.shape[1]
+    # print("raw shape: %d" %raw.shape[1]
     return 1.0 * np.sum(raw, axis=1) / raw.shape[1]
 
 
@@ -126,7 +123,7 @@ def _random_window(image, min_size, max_size, target_width, target_height, inter
         crop_width = target_width
         crop_height = target_height
         # if crop_width > width or crop_height > height:
-        #    print "Warning: crop larger than image"
+        #    print("Warning: crop larger than image"
 
     # Rectangular subwindows
     elif width < height:
@@ -207,12 +204,12 @@ def _get_image_data(sub_window, colorspace):
     # Convert colorpace
     raw = np.array(sub_window.getdata(), dtype=np.float32)
 
-    # print "raw ndim: %d" %raw.ndim
+    # print("raw ndim: %d" %raw.ndim
 
     if raw.ndim == 1:
         raw = raw[:, np.newaxis]
 
-    # print "raw ndmin after newaxis: %d" %raw.ndim
+    # print("raw ndmin after newaxis: %d" %raw.ndim
 
     if colorspace == COLORSPACE_RGB:
         data = _raw_to_rgb(raw)
@@ -234,14 +231,14 @@ def _partition_images(n_jobs, n_images):
     else:
         n_jobs = min(n_jobs, n_images)
 
-    counts = [n_images / n_jobs] * n_jobs
+    counts = [n_images // n_jobs] * n_jobs
 
-    for i in xrange(n_images % n_jobs):
+    for i in range(n_images % n_jobs):
         counts[i] += 1
 
     starts = [0] * (n_jobs + 1)
 
-    for i in xrange(1, n_jobs + 1):
+    for i in range(1, n_jobs + 1):
         starts[i] = starts[i - 1] + counts[i - 1]
 
     return n_jobs, counts, starts
@@ -300,7 +297,7 @@ def _parallel_make_subwindows(X, y, dtype, n_subwindows, min_size, max_size, tar
         if image.mode == "P":
             image = image.convert("RGB")
 
-        for w in xrange(n_subwindows):
+        for w in range(n_subwindows):
             try:
                 sub_window, box = _random_window(image, min_size, max_size, target_width, target_height, interpolation,
                                                  transpose, colorspace, fixed, random_state=random_state)
@@ -310,10 +307,10 @@ def _parallel_make_subwindows(X, y, dtype, n_subwindows, min_size, max_size, tar
                 _X[i, :] = data
 
             except:
-                print
-                print "Expected dim =", _X.shape[1]
-                print "Got", data.shape
-                print filename
+                print()
+                print("Expected dim =", _X.shape[1])
+                print("Got", data.shape)
+                print(filename)
                 raise
 
             _y[i] = output
@@ -336,8 +333,7 @@ class PyxitClassifier(BaseEstimator, ClassifierMixin):
                  fixed_size=False,
                  random_state=None,
                  verbose=0,
-                 get_output=_get_output_from_directory,
-                 parallel_leaf_transform=False):
+                 get_output=_get_output_from_directory):
         self.base_estimator = base_estimator
         self.n_subwindows = n_subwindows
         self.min_size = min_size
@@ -352,7 +348,6 @@ class PyxitClassifier(BaseEstimator, ClassifierMixin):
         self.random_state = check_random_state(random_state)
         self.verbose = verbose
         self.get_output = get_output
-        self.parallel_leaf_transform = parallel_leaf_transform
 
         self.maxs = None
 
@@ -362,7 +357,7 @@ class PyxitClassifier(BaseEstimator, ClassifierMixin):
 
         # Parallel loop
         if self.verbose > 0:
-            print "[estimator.PyxitClassifier.extract_subwindows] Extracting random subwindows"
+            print("[estimator.PyxitClassifier.extract_subwindows] Extracting random subwindows")
 
         all_data = Parallel(n_jobs=n_jobs)(
             delayed(_parallel_make_subwindows)(
@@ -381,10 +376,10 @@ class PyxitClassifier(BaseEstimator, ClassifierMixin):
                 self.random_state.randint(MAX_INT),
                 self.verbose,
                 self.get_output)
-            for i in xrange(n_jobs))
+            for i in range(n_jobs))
 
         if self.verbose > 0:
-            print
+            print()
 
         # Reduce
         _X = np.vstack(X for X, _ in all_data)
@@ -395,10 +390,10 @@ class PyxitClassifier(BaseEstimator, ClassifierMixin):
     def extend_mask(self, mask):
         mask_t = np.zeros(len(mask) * self.n_subwindows, dtype=np.int)
 
-        for i in xrange(len(mask)):
+        for i in range(len(mask)):
             offset = mask[i] * self.n_subwindows
 
-            for j in xrange(self.n_subwindows):
+            for j in range(self.n_subwindows):
                 mask_t[i * self.n_subwindows + j] = offset + j
 
         return mask_t
@@ -416,8 +411,8 @@ class PyxitClassifier(BaseEstimator, ClassifierMixin):
 
         # Fit base estimator
         if self.verbose > 0:
-            print "[estimator.PyxitClassifier.fit] Building base estimator"
-            print _X.shape
+            print("[estimator.PyxitClassifier.fit] Building base estimator")
+            print(_X.shape)
 
         self.base_estimator.fit(_X, _y)
 
@@ -435,7 +430,7 @@ class PyxitClassifier(BaseEstimator, ClassifierMixin):
 
         # Predict proba
         if self.verbose > 0:
-            print "[estimator.PyxitClassifier.predict_proba] Computing class probabilities"
+            print("[estimator.PyxitClassifier.predict_proba] Computing class probabilities")
 
         y = np.zeros((X.shape[0], self.n_classes_))
         inc = 1.0 / self.n_subwindows
@@ -443,24 +438,24 @@ class PyxitClassifier(BaseEstimator, ClassifierMixin):
         try:
             _y = self.base_estimator.predict_proba(_X)
 
-            for i in xrange(X.shape[0]):
+            for i in range(X.shape[0]):
                 y[i] = np.sum(_y[i * self.n_subwindows:(i + 1) * self.n_subwindows], axis=0) / self.n_subwindows
 
-        except:
+        except AttributeError:
             _y = self.base_estimator.predict(_X)
 
-            for i in xrange(X.shape[0]):
-                for j in xrange(i * self.n_subwindows, (i + 1) * self.n_subwindows):
+            for i in range(X.shape[0]):
+                for j in range(i * self.n_subwindows, (i + 1) * self.n_subwindows):
                     y[i, _y[j]] += inc
 
         return y
 
     # Propagates subwindows into the ERT model and compute subwindow frequencies in terminal nodes
     # ET-FL method see Maree et al., TR 2014
-    def transform(self, X, _X=None, reset=False):
+    def transform(self, X, _X=None):
         # Predict proba
         if self.verbose > 0:
-            print "[estimator.PyxitClassifier.transform] Transforming into leaf features"
+            print("[estimator.PyxitClassifier.transform] Transforming into leaf features")
 
         # Extract subwindows
         n_samples = X.shape[0]
@@ -493,9 +488,4 @@ class PyxitClassifier(BaseEstimator, ClassifierMixin):
         __X = csr_matrix((inc, (row, col)), shape=(n_samples, node_count), dtype=np.float32)
 
         # Scale features from [0, max] to [0, 1]
-        if reset:
-            self.maxs = None
-
-        __X, self.maxs = inplace_csr_column_scale_max(__X, self.maxs)
-
-        return __X
+        return normalize(__X, norm="max", axis=0, copy=False)

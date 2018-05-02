@@ -69,7 +69,7 @@ class PyxitClassifierAdapter(PolygonClassifier, Loggable):
         self._pyxit_classifier = pyxit_classifier
         self._working_path = working_path if working_path is not None else os.path.join(tempfile.gettempdir(), "sldc")
         self._tile_cache = TileCache(tile_builder, self._working_path)
-        self._classes = classes
+        self._classes = np.array(classes)
 
     def predict(self, image, polygon):
         return self.predict(image, [polygon])[0]
