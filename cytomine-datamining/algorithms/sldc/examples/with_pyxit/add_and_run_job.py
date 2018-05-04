@@ -46,7 +46,7 @@ class ConstantClassifier(PolygonClassifier):
 
     def __init__(self, label=526928):
         self._label = label
-#
+
 
 def main(argv):
     with CytomineJob.from_cli(argv) as job:
@@ -85,10 +85,10 @@ def main(argv):
                 # if image is a window, the polygon must be translated
                 if isinstance(slide, ImageWindow):
                     polygon = translate(polygon, slide.abs_offset_x, slide.abs_offset_y)
-                # actually upload the annotation
-
+                # upload the annotation
+                polygon = affine_transform(polygon, [1, 0, 0, -1, 0, slide.image_instance.height])
                 annotation = Annotation(location=polygon.wkt, id_image=slide.image_instance.id).save()
-                AlgoAnnotationTerm(id_annotation=annotation.id, id_term=label, rate=proba).save()
+                AlgoAnnotationTerm(id_annotation=annotation.id, id_term=label, rate=float(proba)).save()
 
 
 if __name__ == "__main__":
