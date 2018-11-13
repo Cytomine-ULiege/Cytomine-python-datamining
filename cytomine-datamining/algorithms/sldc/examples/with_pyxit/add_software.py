@@ -1,13 +1,15 @@
 import os
 import tempfile
 
+from cytomine.models import SoftwareParameter, SoftwareParameterCollection
+
 if __name__ == "__main__":
     import cytomine
 
     # Connect to cytomine, edit connection values
     cytomine_host = "demo.cytomine.be"
-    cytomine_public_key = "XXX"  # to complete
-    cytomine_private_key = "XXX"  # to complete
+    cytomine_public_key = "274db678-5c0c-4497-beb6-6602a532aab8"  # to complete
+    cytomine_private_key = "4e2e1047-c706-47ad-8ba1-95aae6dabbf0"  # to complete
     id_project = -1  # to complete
 
     # Connection to Cytomine Core
@@ -15,7 +17,6 @@ if __name__ == "__main__":
         cytomine_host,
         cytomine_public_key,
         cytomine_private_key,
-        base_path='/api/',
         working_path=os.path.join(tempfile.gettempdir(), "cytomine"),
         verbose=True
     )
@@ -29,11 +30,11 @@ if __name__ == "__main__":
     conn.add_software_parameter("sldc_tile_overlap", software.id, "Number", 10, True, 600, False)
     conn.add_software_parameter("sldc_tile_width", software.id, "Number", 768, True, 700, False)
     conn.add_software_parameter("sldc_tile_height", software.id, "Number", 768, True, 800, False)
-    conn.add_software_parameter("pyxit_model_path", software.id, "Number", "", True, 900, False)
+    conn.add_software_parameter("pyxit_model_path", software.id, "String", "", True, 900, False)
     conn.add_software_parameter("min_area", software.id, "Number", 500, True, 1100, False)
     conn.add_software_parameter("threshold", software.id, "Number", 215, True, 1200, False)
     conn.add_software_parameter("rseed", software.id, "Number", 0, True, 1300, False)
-    conn.add_software_parameter("working_path", software.id, "Number", "", True, 1400, False)
+    conn.add_software_parameter("working_path", software.id, "String", "", True, 1400, False)
 
     # add software to a given project
     addSoftwareProject = conn.add_software_project(id_project, software.id)

@@ -1,43 +1,15 @@
 # -*- coding: utf-8 -*-
-import cStringIO
 import os
 import numpy as np
 import PIL
 from PIL.Image import fromarray
-from PIL import Image as PILImage
+from cytomine.models import ImageInstance
 from shapely.geometry import Polygon, box
 from sldc import TileExtractionException, alpha_rasterize, Image, Tile, TileBuilder
 
+
 __author__ = "Mormont Romain <romain.mormont@gmail.com>"
-__version__ = "0.1"
-
-
-def _get_crop(cytomine, image_inst, geometry):
-    """
-    Download the crop corresponding to bounds on the given image instance
-    from cytomine
-
-    Parameters
-    ----------
-    cytomine : :class:`Cytomine`
-        The cilent holding the communication
-    image_inst : :class:`ImageInstance` or image instance id (int)
-        The image on which to extract crop
-    geometry: tuple (int, int, int, int)
-        The information about the geometry of the crop structured as (offset_x, offset_y, width, height)
-    zoom: int (optional, default=0)
-        The zoom to apply to the image
-    """
-    bounds = dict()
-    bounds["x"], bounds["y"], bounds["w"], bounds["h"] = geometry
-    url = "{}{}{}{}".format(cytomine._Cytomine__protocol, cytomine._Cytomine__host, cytomine._Cytomine__base_path,
-                            image_inst.get_crop_url(bounds))
-    resp, content = cytomine.fetch_url(url)
-    if resp.status != 200:
-        raise IOError("Couldn't fetch the crop for image {} and bounds {} from server at url {} (status : {}).".format(image_inst.id, geometry, url, resp.status))
-    tmp = cStringIO.StringIO(content)
-    pil_image = PILImage.open(tmp)  # fetch the image but this process inverts R and B channels (?)
-    return np.asarray(pil_image)[:, :, (2, 1, 0)]  # so reorder to channel to have a valid RGB image
+__version__ = "1.0"
 
 
 class CytomineSlide(Image):
@@ -45,26 +17,19 @@ class CytomineSlide(Image):
     A slide from a cytomine project
     """
 
-    def __init__(self, cytomine, id_img_instance):
+    def __init__(self, id_img_instance):
         """Construct CytomineSlide objects
 
         Parameters
         ----------
-        cytomine: cytomine.Cytomine
-            The cytomine client
         id_img_instance: int
             The id of the image instance
         """
-        self._cytomine = cytomine
-        self._img_instance = self._cytomine.get_image_instance(id_img_instance, include_server_urls=True)
+        self._img_instance = ImageInstance().fetch(id_img_instance)
 
     @property
     def image_instance(self):
         return self._img_instance
-
-    @property
-    def cytomine(self):
-        return self._cytomine
 
     @property
     def np_image(self):
@@ -82,10 +47,6 @@ class CytomineSlide(Image):
     def channels(self):
         return 3
 
-    def __getstate__(self):
-        self._cytomine.__conn = None
-        return self.__dict__
-
     def __str__(self):
         return "CytomineSlide (#{}) ({} x {})".format(self._img_instance.id, self.width, self.height)
 
@@ -94,13 +55,11 @@ class CytomineTile(Tile):
     """
     A tile from a cytomine slide
     """
-    def __init__(self, cytomine, working_path, parent, offset, width, height, tile_identifier=None, polygon_mask=None):
+    def __init__(self, working_path, parent, offset, width, height, tile_identifier=None, polygon_mask=None):
         """Constructor for CytomineTile objects
 
         Parameters
         ----------
-        cytomine: cytomine.Cytomine
-            An initialized instance of the cytomine client
         parent: Image
             The image from which is extracted the tile
         offset: (int, int)
@@ -120,7 +79,6 @@ class CytomineTile(Tile):
         The coordinates origin is the leftmost pixel at the top of the slide
         """
         Tile.__init__(self, parent, offset, width, height, tile_identifier=tile_identifier, polygon_mask=polygon_mask)
-        self._cytomine = cytomine
         self._working_path = working_path
 
     @property
@@ -130,19 +88,21 @@ class CytomineTile(Tile):
             x, y, width, height = self.abs_offset_x, self.abs_offset_y, self.width, self.height
 
             # check if the tile was cached
-            cache_file = "{}_{}_{}_{}_{}.png".format(image_instance.id, x, y, width, height)
-            cache_path = os.path.join(self._working_path, cache_file)
-            if os.path.exists(cache_path):
-                return np.asarray(PIL.Image.open(cache_path))
+            cache_filename_format = "{id}-{x}-{y}-{w}-{h}.png"
+            cache_filename = cache_filename_format.format(id=image_instance.id, x=x, y=y, w=width, h=height)
+            cache_path = os.path.join(self._working_path, cache_filename)
+            if not os.path.exists(cache_path):
+                if not image_instance.window(x=x, y=y, w=width, h=height, dest_pattern=cache_path):
+                    raise TileExtractionException("Cannot fetch tile at for "
+                                                  "'{}'.".format(cache_filename_format.split(".", 1)[0]))
 
-            # build crop box
-            tbox = (x, y, width, height)
-            # fetch image
-            np_array = np.asarray(_get_crop(self._cytomine, image_instance, tbox))
-            if np_array.shape[1] != tbox[2] or np_array.shape[0] != tbox[3] \
+            # load image
+            np_array = np.asarray(PIL.Image.open(cache_path))
+            if np_array.shape[1] != width or np_array.shape[0] != height \
                     or np_array.shape[2] < self._underlying_image_channels:
-                msg = "Fetched image has invalid size : {} instead of {}".format(np_array.shape, (tbox[3], tbox[2], self.channels))
-                raise TileExtractionException(msg)
+                raise TileExtractionException("Fetched image has invalid size : {} instead "
+                                              "of {}".format(np_array.shape, (width, height, self.channels)))
+
             # drop alpha channel if there is one
             if np_array.shape[2] >= 4:
                 np_array = np_array[:, :, 0:3]
@@ -155,7 +115,7 @@ class CytomineTile(Tile):
                 except ValueError:
                     return np_array
         except IOError as e:
-            raise TileExtractionException(e.message)
+            raise TileExtractionException(str(e))
 
     @property
     def channels(self):
@@ -165,29 +125,24 @@ class CytomineTile(Tile):
         offset_x, offset_y = self.abs_offset
         return box(offset_x, offset_y, offset_x + self.width, offset_y + self.height)
 
-    def __getstate__(self):
-        self._cytomine._Cytomine__conn = None  # delete socket to make the tile serializable
-        return self.__dict__
-
 
 class CytomineTileBuilder(TileBuilder):
     """
     A builder for CytomineTile objects
     """
 
-    def __init__(self, cytomine, working_path):
+    def __init__(self, working_path):
         """Construct CytomineTileBuilder objects
 
         Parameters
         ----------
-        cytomine: cytomine.Cytomine
-            The initialized cytomine client
+        working_path:
+            A writable working path for the tile builder
         """
-        self._cytomine = cytomine
         self._working_path = working_path
 
     def build(self, image, offset, width, height, polygon_mask=None):
-        return CytomineTile(self._cytomine, self._working_path, image, offset, width, height, polygon_mask=polygon_mask)
+        return CytomineTile(self._working_path, image, offset, width, height, polygon_mask=polygon_mask)
 
 
 class TileCache(object):

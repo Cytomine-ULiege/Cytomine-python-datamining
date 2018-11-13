@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 
 #
 # * Copyright (c) 2009-2015. Authors: see NOTICE file.
@@ -20,8 +21,6 @@
 __author__          = "Gilles Louppe"
 __contributors__    = ["Marée Raphaël <raphael.maree@ulg.ac.be>", "Stévens Benjamin <b.stevens@ulg.ac.be>"]
 __copyright__       = "Copyright 2010-2015 University of Liège, Belgium, http://www.cytomine.be/"
-
-
 
 
 import cPickle as pickle
@@ -58,47 +57,47 @@ def print_cm(cm, classes):
     totalsamples=0
     classERSum=0
     totalrecognized=0
-    print "%-10s" % "",
+    print("%-10s" % "", end="")
     for c in classes:
-	c=str(c)
-        print "%-10s" % c[:min(10,len(c))],
-    print
+        c=str(c)
+        print("%-10s" % c[:min(10,len(c))], end="")
+    print()
 
-    for i in xrange(cm.shape[0]):
-        print "%-10s" % classes[i], #[:min(10, len(str(classes[i])))],                                                                                                         
+    for i in range(cm.shape[0]):
+        print("%-10s" % classes[i], end="") #[:min(10, len(str(classes[i])))],
 
         totalrow=0
-        for j in xrange(cm.shape[1]):
-            print "%-10d" % cm[i, j],
+        for j in range(cm.shape[1]):
+            print("%-10d" % cm[i, j], end="")
             totalrow+=cm[i,j]
 
         classER=100*(float(cm[i,i])/float(totalrow))
         classERSum+=classER
         totalrecognized+=cm[i,i]
         totalsamples+=totalrow
-        print "%d / %d = %.2f %%" %(cm[i,i],totalrow,classER)
-        print
-    print "Totalrecognized:%d , Totalsamples: %d" %(totalrecognized,totalsamples)
-    print "Average class recognition rate: %.2f %%" %(classERSum/len(classes))
-    print "Overall recognition rate: %.2f %%" %(100*float(totalrecognized)/totalsamples)
+        print("%d / %d = %.2f %%" %(cm[i,i],totalrow,classER))
+        print()
+    print("Totalrecognized:%d , Totalsamples: %d" %(totalrecognized,totalsamples))
+    print("Average class recognition rate: %.2f %%" %(classERSum/len(classes)))
+    print("Overall recognition rate: %.2f %%" %(100*float(totalrecognized)/totalsamples))
 
 
 
 #Simplified display of Confusion Matrix
 def print_cm_simplified(cm, classes):
-    print "%-10s" % "",
+    print("%-10s" % "", end="")
     for c in classes:
         c=str(c)
-        print "%-10s" % c[:min(10,len(c))],
-    print
+        print("%-10s" % c[:min(10,len(c))], end="")
+    print()
 
-    for i in xrange(cm.shape[0]):
-        print "%-10s" % classes[i], #[:min(10, len(str(classes[i])))],
+    for i in range(cm.shape[0]):
+        print("%-10s" % classes[i], end="") #[:min(10, len(str(classes[i])))],
 
-        for j in xrange(cm.shape[1]):
-            print "%-10d" % cm[i, j],
+        for j in range(cm.shape[1]):
+            print("%-10d" % cm[i, j], end="")
 
-        print
+        print()
 
 
 def main(argv):
@@ -152,17 +151,17 @@ def main(argv):
         e = "--pyxit_save_to and --cv_k_folds cannot be set at the time."
 
     if e:
-        print "Error: %s" % e
-        print "Run with -h option for help."
+        print("Error: %s" % e)
+        print("Run with -h option for help.")
         sys.exit(1)
 
     if options.verbose:
-      print "[pyxit.main] Options = ", options
+        print("[pyxit.main] Options = ", options)
 
 
     # Load data
     if options.verbose:
-        print "[pyxit.main] Loading data..."
+        print("[pyxit.main] Loading data...")
 
     X, y = build_from_dir(options.dir_ls)
 
@@ -173,7 +172,7 @@ def main(argv):
 
     # Instantiate classifiers
     if options.verbose:
-        print "[pyxit.main] Initializing PyxitClassifier..."
+        print("[pyxit.main] Initializing PyxitClassifier...")
 
     forest = ExtraTreesClassifier(n_estimators=options.forest_n_estimators,
                                   max_features=options.forest_max_features,
@@ -224,12 +223,12 @@ def main(argv):
 
 
     if options.verbose:
-        print "[pyxit.main] PyxitClassifier ="
-        print pyxit
+        print("[pyxit.main] PyxitClassifier =")
+        print(pyxit)
 
         if options.svm:
-            print "[pyxit.main] SVM ="
-            print svm
+            print("[pyxit.main] SVM =")
+            print(svm)
 
     # Build and evaluate
     if options.dir_ls and not options.dir_ts and not options.cv_k_folds:
@@ -238,13 +237,13 @@ def main(argv):
             pickle.dump(classes, fd, protocol=pickle.HIGHEST_PROTOCOL)
 
         if options.verbose:
-            print "[pyxit.main] Fitting PyxitClassifier on %s" % options.dir_ls
+            print("[pyxit.main] Fitting PyxitClassifier on %s" % options.dir_ls)
 
         _X, _y = pyxit.extract_subwindows(X, y)
         pyxit.fit(X, y, _X=_X, _y=_y)
 
         if options.verbose:
-            print "[pyxit.main] Saving PyxitClassifier into %s" % options.pyxit_save_to
+            print("[pyxit.main] Saving PyxitClassifier into %s" % options.pyxit_save_to)
 
         if options.pyxit_save_to:
             pickle.dump(pyxit, fd, protocol=pickle.HIGHEST_PROTOCOL)
@@ -253,12 +252,12 @@ def main(argv):
             Xt = pyxit.transform(X, _X=_X, reset=True)
 
             if options.verbose:
-                print "[pyxit.main] Fitting SVC on %s" % options.dir_ls
+                print("[pyxit.main] Fitting SVC on %s" % options.dir_ls)
 
             svm.fit(Xt, y)
 
             if options.verbose:
-                print "[pyxit.main] Saving SVM into %s" % options.pyxit_save_to
+                print("[pyxit.main] Saving SVM into %s" % options.pyxit_save_to)
 
             if options.pyxit_save_to:
                 pickle.dump(svm, fd, protocol=pickle.HIGHEST_PROTOCOL)
@@ -272,7 +271,7 @@ def main(argv):
             pickle.dump(classes, fd, protocol=pickle.HIGHEST_PROTOCOL)
 
         if options.verbose:
-            print "[pyxit.main] Fitting PyxitClassifier on %s" % options.dir_ls
+            print("[pyxit.main] Fitting PyxitClassifier on %s" % options.dir_ls)
 
         _X, _y = pyxit.extract_subwindows(X, y)
         pyxit.fit(X, y, _X=_X, _y=_y)
@@ -284,7 +283,7 @@ def main(argv):
             Xt = pyxit.transform(X, _X=_X, reset=True)
 
             if options.verbose:
-                print "[pyxit.main] Fitting SVC on %s" % options.dir_ls
+                print("[pyxit.main] Fitting SVC on %s" % options.dir_ls)
 
             svm.fit(Xt, y)
 
@@ -295,7 +294,7 @@ def main(argv):
             fd.close()
 
         if options.verbose:
-            print "[pyxit.main] Testing on %s" % options.dir_ts
+            print("[pyxit.main] Testing on %s" % options.dir_ts)
 
         X_test, y_test = build_from_dir(options.dir_ts)
         y_test = np.searchsorted(classes, y_test)
@@ -315,7 +314,7 @@ def main(argv):
 
     elif options.cv_k_folds:
         if options.verbose:
-            print "[pyxit.main] K-Fold cross-validation (K=%d)" % options.cv_k_folds
+            print("[pyxit.main] K-Fold cross-validation (K=%d)" % options.cv_k_folds)
 
         _X, _y = pyxit.extract_subwindows(X, y)
 
@@ -340,7 +339,7 @@ def main(argv):
             _test = pyxit.extend_mask(test)
 
             if options.verbose:
-                print "[pyxit.main] Fitting PyxitClassifier on fold %d" % i
+                print("[pyxit.main] Fitting PyxitClassifier on fold %d" % i)
 
             pyxit.fit(X[train], y[train], _X=_X[_train], _y=_y[_train])
 
@@ -348,12 +347,12 @@ def main(argv):
                 Xt = pyxit.transform(X[train], _X=_X[_train], reset=True)
 
                 if options.verbose:
-                    print "[pyxit.main] Fitting SVC on fold %d" % i
+                    print("[pyxit.main] Fitting SVC on fold %d" % i)
 
                 svm.fit(Xt, y[train])
 
             if options.verbose:
-                print "[pyxit.main] Testing on fold %d" % i
+                print("[pyxit.main] Testing on fold %d" % i)
 
             if not options.svm:
                 y_predict[test] = pyxit.predict(X[test], _X=_X[_test])
@@ -365,11 +364,11 @@ def main(argv):
 
                 if hasattr(svm, "predict_proba"):
                     y_proba[test] = svm.predict_proba(Xt)
-                print svm
+                print(svm)
 
             if options.verbose:
-                print "[pyxit.main] Classification error on fold %d = %f" % (i, 1.0 * np.sum(y_true[test] != y_predict[test]) / len(y_true[test]))
-                print "[pyxit.main] Cumulated confusion matrix ="
+                print("[pyxit.main] Classification error on fold %d = %f" % (i, 1.0 * np.sum(y_true[test] != y_predict[test]) / len(y_true[test])))
+                print("[pyxit.main] Cumulated confusion matrix =")
                 cm += confusion_matrix(y_true[test], y_predict[test])
                 print_cm(cm, classes)
 
@@ -378,17 +377,17 @@ def main(argv):
     # Output some results
     if "all_tested" in locals():
         if options.verbose:
-            print "---"
-            print "[pyxit.main] Test coverage =", sum(all_tested) / (1.0 * len(all_tested))
-            print "[pyxit.main] Overall classification error = %f" % (1.0 * np.sum(y_true[all_tested] != y_predict[all_tested]) / len(y_true[all_tested]))
-            print "[pyxit.main] Overall confusion matrix ="
+            print("---")
+            print("[pyxit.main] Test coverage =", sum(all_tested) / (1.0 * len(all_tested)))
+            print("[pyxit.main] Overall classification error = %f" % (1.0 * np.sum(y_true[all_tested] != y_predict[all_tested]) / len(y_true[all_tested])))
+            print("[pyxit.main] Overall confusion matrix =")
             print_cm(confusion_matrix(y_true[all_tested], y_predict[all_tested]), classes)
 
         #y_true = classes.take(y_true[all_tested], axis=0)
         y_predict = classes.take(y_predict[all_tested], axis=0)
         y_proba = np.max(y_proba, axis=1)
         d = {}
-        for i in xrange(len(X)):
+        for i in range(len(X)):
             d[X[i]] = (int(y_predict[i]), y_proba[i]) 
         return d
 
