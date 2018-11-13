@@ -17,28 +17,29 @@
 # */
 
 
-__author__          = "Vandaele Rémy <remy.vandaele@ulg.ac.be>"
-__contributors__    = ["Marée Raphaël <raphael.maree@ulg.ac.be>"]
-__copyright__       = "Copyright 2010-2017 University of Liège, Belgium, http://www.cytomine.be/"
+__author__ = "Vandaele Rémy <remy.vandaele@ulg.ac.be>"
+__contributors__ = ["Marée Raphaël <raphael.maree@ulg.ac.be>"]
+__copyright__ = "Copyright 2010-2017 University of Liège, Belgium, http://www.cytomine.be/"
 
 import cytomine
 
-#connect to cytomine : parameters to set
-cytomine_host=""         #URL to your cytomine host (e.g demo.cytomine.be)
-cytomine_public_key=""   #Your cytomine public key
-cytomine_private_key=""  #Your cytomine private key
-id_project=0             #The id of the cytomine project
+# connect to cytomine : parameters to set
+cytomine_host = ""  # URL to your cytomine host (e.g demo.cytomine.be)
+cytomine_public_key = ""  # Your cytomine public key
+cytomine_private_key = ""  # Your cytomine private key
+id_project = 0  # The id of the cytomine project
 
-conn = cytomine.Cytomine(cytomine_host, cytomine_public_key, cytomine_private_key, base_path = '/api/', working_path = '/tmp/', verbose= True)
+conn = cytomine.Cytomine(cytomine_host, cytomine_public_key, cytomine_private_key, base_path='/api/',
+                         working_path='/tmp/', verbose=True)
 
 """
 Generic Landmark model builder
 """
-execute_command = "python /software_router/algo/ldm_model_builder/build_generic_model.py "+ \
-                  "--cytomine_host $host "+ \
-                  "--cytomine_public_key $publicKey "+ \
+execute_command = "python /software_router/algo/ldm_model_builder/build_generic_model.py " + \
+                  "--cytomine_host $host " + \
+                  "--cytomine_public_key $publicKey " + \
                   "--cytomine_private_key $privateKey " + \
-                  "--cytomine_base_path /api/ " + \ 
+                  "--cytomine_base_path /api/ " + \
                   "--cytomine_working_path /software_router/algo/ldm_model_builder/ " + \
                   "--cytomine_id_software $cytomine_id_software " + \
                   "--cytomine_id_project $cytomine_id_project " + \
@@ -63,39 +64,39 @@ execute_command = "python /software_router/algo/ldm_model_builder/build_generic_
                   "--model_save_to /software_router/algo/ldm_model_builder/ " + \
                   "--model_name $model_name " + \
                   "--verbose true"
-                  
-software = conn.add_software("GLM_Builder", "createRabbitJobWithArgsService","ValidateAnnotation", execute_command)
-conn.add_software_parameter("cytomine_id_terms",           software.id, "String", None, True, 1 , False)
-conn.add_software_parameter("cytomine_training_images",    software.id, "String", None, True, 2,  False)
-conn.add_software_parameter("model_name",                  software.id, "String", None, True, 3,  False)
-conn.add_software_parameter("model_njobs",                 software.id, "Number", None, True, 4 , False)
-conn.add_software_parameter("model_R",                     software.id, "Number", None, True, 5 , False)
-conn.add_software_parameter("model_RMAX",                  software.id, "Number", None, True, 6 , False)
-conn.add_software_parameter("model_P",                     software.id, "Number", None, True, 7 , False)
-conn.add_software_parameter("model_npred",                 software.id, "Number", None, True, 8 , False)
-conn.add_software_parameter("model_ntimes",                software.id, "Number", None, True, 9 , False)
-conn.add_software_parameter("model_angle",                 software.id, "Number", None, True, 10, False)
-conn.add_software_parameter("model_depth",                 software.id, "Number", None, True, 11, False)
-conn.add_software_parameter("model_wsize",                 software.id, "Number", None, True, 12, False)
-conn.add_software_parameter("model_ntrees",                software.id, "Number", None, True, 13, False)
-conn.add_software_parameter("model_step",                  software.id, "Number", None, True, 14, False)
-conn.add_software_parameter("forest_max_features",         software.id, "Number", None, True, 15, False)
-conn.add_software_parameter("forest_min_samples_split",    software.id, "Number", None, True, 16, False)
-conn.add_software_parameter("model_feature_type",          software.id, "String", None, True, 17, False)
-conn.add_software_parameter("model_feature_haar_n",        software.id, "Number", None, True, 18, False)
-conn.add_software_parameter("model_feature_gaussian_n",    software.id, "Number", None, True, 19, False)
-conn.add_software_parameter("model_feature_gaussian_std",  software.id, "Number", None, True, 20, False)
-conn.add_software_parameter("cytomine_id_software",        software.id, "Number", 0,    True, 400, True)
-conn.add_software_parameter("cytomine_id_project",         software.id, "Number", 0,    True, 500, True)
-conn.add_software_project(id_project,software.id)
-print "Generic Landmark Model Builder Software id is %d"%software.id
+
+software = conn.add_software("GLM_Builder", "createRabbitJobWithArgsService", "ValidateAnnotation", execute_command)
+conn.add_software_parameter("cytomine_id_terms", software.id, "String", None, True, 1, False)
+conn.add_software_parameter("cytomine_training_images", software.id, "String", None, True, 2, False)
+conn.add_software_parameter("model_name", software.id, "String", None, True, 3, False)
+conn.add_software_parameter("model_njobs", software.id, "Number", None, True, 4, False)
+conn.add_software_parameter("model_R", software.id, "Number", None, True, 5, False)
+conn.add_software_parameter("model_RMAX", software.id, "Number", None, True, 6, False)
+conn.add_software_parameter("model_P", software.id, "Number", None, True, 7, False)
+conn.add_software_parameter("model_npred", software.id, "Number", None, True, 8, False)
+conn.add_software_parameter("model_ntimes", software.id, "Number", None, True, 9, False)
+conn.add_software_parameter("model_angle", software.id, "Number", None, True, 10, False)
+conn.add_software_parameter("model_depth", software.id, "Number", None, True, 11, False)
+conn.add_software_parameter("model_wsize", software.id, "Number", None, True, 12, False)
+conn.add_software_parameter("model_ntrees", software.id, "Number", None, True, 13, False)
+conn.add_software_parameter("model_step", software.id, "Number", None, True, 14, False)
+conn.add_software_parameter("forest_max_features", software.id, "Number", None, True, 15, False)
+conn.add_software_parameter("forest_min_samples_split", software.id, "Number", None, True, 16, False)
+conn.add_software_parameter("model_feature_type", software.id, "String", None, True, 17, False)
+conn.add_software_parameter("model_feature_haar_n", software.id, "Number", None, True, 18, False)
+conn.add_software_parameter("model_feature_gaussian_n", software.id, "Number", None, True, 19, False)
+conn.add_software_parameter("model_feature_gaussian_std", software.id, "Number", None, True, 20, False)
+conn.add_software_parameter("cytomine_id_software", software.id, "Number", 0, True, 400, True)
+conn.add_software_parameter("cytomine_id_project", software.id, "Number", 0, True, 500, True)
+conn.add_software_project(id_project, software.id)
+print "Generic Landmark Model Builder Software id is %d" % software.id
 
 """
 DMBL
 """
-execute_command = "python /software_router/algo/ldm_model_builder/build_dmbl_model.py "+ \
-                  "--cytomine_host $host "+ \
-                  "--cytomine_public_key $publicKey "+ \
+execute_command = "python /software_router/algo/ldm_model_builder/build_dmbl_model.py " + \
+                  "--cytomine_host $host " + \
+                  "--cytomine_public_key $publicKey " + \
                   "--cytomine_private_key $privateKey " + \
                   "--cytomine_base_path /api/ " + \
                   "--cytomine_working_path /software_router/algo/ldm_model_builder/ " + \
@@ -123,76 +124,78 @@ execute_command = "python /software_router/algo/ldm_model_builder/build_dmbl_mod
                   "--model_sde $model_sde " + \
                   "--model_T $model_T " + \
                   "--verbose true"
-software = conn.add_software("DMBL_Landmark_Model_Builder", "createRabbitJobWithArgsService","ValidateAnnotation", execute_command)
-conn.add_software_parameter("cytomine_id_terms",                      software.id, "String", None, True, 1 , False)
-conn.add_software_parameter("cytomine_training_images",               software.id, "String", None, True, 2 , False)
-conn.add_software_parameter("model_name",                             software.id, "String", None, True, 3 , False)
-conn.add_software_parameter("model_njobs",                     software.id, "Number", None, True, 4 , False)
-conn.add_software_parameter("model_NT_P1",                     software.id, "Number", None, True, 5 , False)
-conn.add_software_parameter("model_F_P1",                      software.id, "Number", None, True, 6 , False)
-conn.add_software_parameter("model_R_P1",                      software.id, "Number", None, True, 7 , False)
-conn.add_software_parameter("model_sigma",                     software.id, "Number", None, True, 8 , False)
-conn.add_software_parameter("model_delta",                     software.id, "Number", None, True, 9 , False)
-conn.add_software_parameter("model_P",                         software.id, "Number", None, True, 10 , False)
-conn.add_software_parameter("model_R_P2",                      software.id, "Number", None, True, 11 , False)
-conn.add_software_parameter("model_ns_P2",                     software.id, "Number", None, True, 12 , False)
-conn.add_software_parameter("model_NT_P2",                     software.id, "Number", None, True, 13, False)
-conn.add_software_parameter("model_F_P2",                      software.id, "Number", None, True, 14, False)
-conn.add_software_parameter("model_filter_size",               software.id, "Number", None, True, 15, False)
-conn.add_software_parameter("model_beta",                      software.id, "Number", None, True, 16, False)
-conn.add_software_parameter("model_n_iterations",              software.id, "Number", None, True, 17, False)
-conn.add_software_parameter("model_ncandidates",               software.id, "Number", None, True, 18, False)
-conn.add_software_parameter("model_sde",                       software.id, "Number", None, True, 19, False)
-conn.add_software_parameter("model_T",                         software.id, "Number", None, True, 20, False)
-conn.add_software_parameter("cytomine_id_software",            software.id, "Number",0, True, 400, True)
-conn.add_software_parameter("cytomine_id_project",             software.id, "Number", 0, True, 500, True)
-conn.add_software_project(id_project,software.id)
-print "DMBL Software id is %d"%software.id
+software = conn.add_software("DMBL_Landmark_Model_Builder", "createRabbitJobWithArgsService", "ValidateAnnotation",
+                             execute_command)
+conn.add_software_parameter("cytomine_id_terms", software.id, "String", None, True, 1, False)
+conn.add_software_parameter("cytomine_training_images", software.id, "String", None, True, 2, False)
+conn.add_software_parameter("model_name", software.id, "String", None, True, 3, False)
+conn.add_software_parameter("model_njobs", software.id, "Number", None, True, 4, False)
+conn.add_software_parameter("model_NT_P1", software.id, "Number", None, True, 5, False)
+conn.add_software_parameter("model_F_P1", software.id, "Number", None, True, 6, False)
+conn.add_software_parameter("model_R_P1", software.id, "Number", None, True, 7, False)
+conn.add_software_parameter("model_sigma", software.id, "Number", None, True, 8, False)
+conn.add_software_parameter("model_delta", software.id, "Number", None, True, 9, False)
+conn.add_software_parameter("model_P", software.id, "Number", None, True, 10, False)
+conn.add_software_parameter("model_R_P2", software.id, "Number", None, True, 11, False)
+conn.add_software_parameter("model_ns_P2", software.id, "Number", None, True, 12, False)
+conn.add_software_parameter("model_NT_P2", software.id, "Number", None, True, 13, False)
+conn.add_software_parameter("model_F_P2", software.id, "Number", None, True, 14, False)
+conn.add_software_parameter("model_filter_size", software.id, "Number", None, True, 15, False)
+conn.add_software_parameter("model_beta", software.id, "Number", None, True, 16, False)
+conn.add_software_parameter("model_n_iterations", software.id, "Number", None, True, 17, False)
+conn.add_software_parameter("model_ncandidates", software.id, "Number", None, True, 18, False)
+conn.add_software_parameter("model_sde", software.id, "Number", None, True, 19, False)
+conn.add_software_parameter("model_T", software.id, "Number", None, True, 20, False)
+conn.add_software_parameter("cytomine_id_software", software.id, "Number", 0, True, 400, True)
+conn.add_software_parameter("cytomine_id_project", software.id, "Number", 0, True, 500, True)
+conn.add_software_project(id_project, software.id)
+print "DMBL Software id is %d" % software.id
 
 """
 LC
 """
-execute_command = "python /software_router/algo/ldm_model_builder/build_lc_model.py " + \
-                  "--cytomine_host $host "+ \"
-                  "--cytomine_public_key $publicKey " + \
-                  "--cytomine_private_key $privateKey " + \
-                  "--cytomine_base_path /api/ " + \
-                  "--cytomine_working_path /software_router/algo/ldm_model_builder/ " + \
-                  "--cytomine_id_software $cytomine_id_software " + \
-                  "--cytomine_id_project $cytomine_id_project " + \
-                  "--cytomine_id_terms $cytomine_id_terms " + \
-                  "--cytomine_training_images $cytomine_training_images " + \
-                  "--image_type jpg " + \
-                  "--model_njobs $model_njobs " + \
-                  "--model_D_MAX $model_D_MAX " + \
-                  "--model_n_samples $model_n_samples " + \
-                  "--model_W $model_W " + \
-                  "--model_n $model_n " + \
-                  "--model_T $model_T " + \
-                  "--model_step $model_step " + \
-                  "--model_n_reduc $model_n_reduc " + \
-                  "--model_R_MAX $model_R_MAX " + \
-                  "--model_R_MIN $model_R_MIN " + \
-                  "--model_alpha $model_alpha " + \
-                  "--model_save_to /software_router/algo/ldm_model_builder/ " + \
-                  "--model_name $model_name " + \
+execute_command = "python /software_router/algo/ldm_model_builder/build_lc_model.py " \
+                  "--cytomine_host $host " \
+                  "--cytomine_public_key $publicKey " \
+                  "--cytomine_private_key $privateKey " \
+                  "--cytomine_base_path /api/ " \
+                  "--cytomine_working_path /software_router/algo/ldm_model_builder/ " \
+                  "--cytomine_id_software $cytomine_id_software " \
+                  "--cytomine_id_project $cytomine_id_project " \
+                  "--cytomine_id_terms $cytomine_id_terms " \
+                  "--cytomine_training_images $cytomine_training_images " \
+                  "--image_type jpg " \
+                  "--model_njobs $model_njobs " \
+                  "--model_D_MAX $model_D_MAX " \
+                  "--model_n_samples $model_n_samples " \
+                  "--model_W $model_W " \
+                  "--model_n $model_n " \
+                  "--model_T $model_T " \
+                  "--model_step $model_step " \
+                  "--model_n_reduc $model_n_reduc " \
+                  "--model_R_MAX $model_R_MAX " \
+                  "--model_R_MIN $model_R_MIN " \
+                  "--model_alpha $model_alpha " \
+                  "--model_save_to /software_router/algo/ldm_model_builder/ " \
+                  "--model_name $model_name " \
                   "--verbose true"
-software = conn.add_software("LC_Landmark_Model_Builder", "createRabbitJobWithArgsService","ValidateAnnotation", execute_command)
-conn.add_software_parameter("cytomine_id_terms",        software.id, "String", None, True, 1, False)
+software = conn.add_software("LC_Landmark_Model_Builder", "createRabbitJobWithArgsService", "ValidateAnnotation",
+                             execute_command)
+conn.add_software_parameter("cytomine_id_terms", software.id, "String", None, True, 1, False)
 conn.add_software_parameter("cytomine_training_images", software.id, "String", None, True, 2, False)
-conn.add_software_parameter("model_name",               software.id, "String", None, True, 3, False)
-conn.add_software_parameter("model_njobs",       software.id, "Number", None, True, 4, False)
-conn.add_software_parameter("model_D_MAX",       software.id, "Number", None, True, 5, False)
-conn.add_software_parameter("model_n_samples",   software.id, "Number", None, True, 6, False)
-conn.add_software_parameter("model_W",           software.id, "Number", None, True, 7, False)
-conn.add_software_parameter("model_n",           software.id, "Number", None, True, 8, False)
-conn.add_software_parameter("model_T",           software.id, "Number", None, True, 9, False)
-conn.add_software_parameter("model_step",        software.id, "Number", None, True, 10, False)
-conn.add_software_parameter("model_n_reduc",     software.id, "Number", None, True, 11, False)
-conn.add_software_parameter("model_R_MAX",       software.id, "Number", None, True,12, False)
-conn.add_software_parameter("model_R_MIN",       software.id, "Number", None, True,13, False)
-conn.add_software_parameter("model_alpha",       software.id, "Number", None, True,14, False)
-conn.add_software_parameter("cytomine_id_software", software.id, "Number",0, True, 400, True)
+conn.add_software_parameter("model_name", software.id, "String", None, True, 3, False)
+conn.add_software_parameter("model_njobs", software.id, "Number", None, True, 4, False)
+conn.add_software_parameter("model_D_MAX", software.id, "Number", None, True, 5, False)
+conn.add_software_parameter("model_n_samples", software.id, "Number", None, True, 6, False)
+conn.add_software_parameter("model_W", software.id, "Number", None, True, 7, False)
+conn.add_software_parameter("model_n", software.id, "Number", None, True, 8, False)
+conn.add_software_parameter("model_T", software.id, "Number", None, True, 9, False)
+conn.add_software_parameter("model_step", software.id, "Number", None, True, 10, False)
+conn.add_software_parameter("model_n_reduc", software.id, "Number", None, True, 11, False)
+conn.add_software_parameter("model_R_MAX", software.id, "Number", None, True, 12, False)
+conn.add_software_parameter("model_R_MIN", software.id, "Number", None, True, 13, False)
+conn.add_software_parameter("model_alpha", software.id, "Number", None, True, 14, False)
+conn.add_software_parameter("cytomine_id_software", software.id, "Number", 0, True, 400, True)
 conn.add_software_parameter("cytomine_id_project", software.id, "Number", 0, True, 500, True)
-conn.add_software_project(id_project,software.id)
-print "LC Software id is %d"%software.id
+conn.add_software_project(id_project, software.id)
+print "LC Software id is %d" % software.id

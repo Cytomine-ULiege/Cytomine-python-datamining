@@ -17,27 +17,25 @@
 # */
 
 
-__author__          = "Marée Raphael <raphael.maree@ulg.ac.be>"
-__contributors__    = ["Stévens Benjamin <b.stevens@ulg.ac.be>"]
-__copyright__       = "Copyright 2010-2015 University of Liège, Belgium, http://www.cytomine.be/"
-
+__author__ = "Marée Raphael <raphael.maree@ulg.ac.be>"
+__contributors__ = ["Stévens Benjamin <b.stevens@ulg.ac.be>"]
+__copyright__ = "Copyright 2010-2015 University of Liège, Belgium, http://www.cytomine.be/"
 
 import cytomine
-import sys
 
-#connect to cytomine
+# connect to cytomine
 
-cytomine_host="XXX"
-cytomine_public_key="XXX"
-cytomine_private_key="XXX"
-id_project=XXX
+cytomine_host = "XXX"
+cytomine_public_key = "XXX"
+cytomine_private_key = "XXX"
+id_project = XXX
 
-#Connection to Cytomine Core
-conn = cytomine.Cytomine(cytomine_host, cytomine_public_key, cytomine_private_key, base_path = '/api/', working_path = '/tmp/', verbose= True)
+# Connection to Cytomine Core
+conn = cytomine.Cytomine(cytomine_host, cytomine_public_key, cytomine_private_key, base_path='/api/',
+                         working_path='/tmp/', verbose=True)
 
-
-#define software parameter template
-software = conn.add_software("Segmentation_Model_Predict", "pyxitSuggestedTermJobService","ValidateAnnotation")
+# define software parameter template
+software = conn.add_software("Segmentation_Model_Predict", "pyxitSuggestedTermJobService", "ValidateAnnotation")
 conn.add_software_parameter("cytomine_zoom_level", software.id, "Number", 0, True, 10, False)
 conn.add_software_parameter("pyxit_target_width", software.id, "Number", 24, True, 20, False)
 conn.add_software_parameter("pyxit_target_height", software.id, "Number", 24, True, 30, False)
@@ -63,8 +61,8 @@ conn.add_software_parameter("pyxit_save_to", software.id, "String", "/tmp", Fals
 conn.add_software_parameter("cytomine_postproc", software.id, "Boolean", "/tmp", False, 115, False)
 conn.add_software_parameter("pyxit_post_classification", software.id, "Boolean", "/tmp", False, 230, False)
 conn.add_software_parameter("pyxit_post_classification_save_to", software.id, "String", "/tmp", False, 240, False)
-conn.add_software_parameter("cytomine_mask_internal_holes",software.id, "Boolean", "true", True, 250, False)
+conn.add_software_parameter("cytomine_mask_internal_holes", software.id, "Boolean", "true", True, 250, False)
 conn.add_software_parameter("cytomine_id_image", software.id, "Number", 0, True, 1, False)
 
-#add software to a given project
-addSoftwareProject = conn.add_software_project(id_project,software.id)
+# add software to a given project
+addSoftwareProject = conn.add_software_project(id_project, software.id)

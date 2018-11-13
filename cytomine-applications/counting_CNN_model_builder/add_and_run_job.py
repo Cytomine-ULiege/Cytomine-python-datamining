@@ -18,9 +18,8 @@ import tempfile
 from argparse import ArgumentParser
 
 import numpy as np
-from cytomine import Cytomine
-from cytomine_utilities import CytomineJob
-from keras.callbacks import ModelCheckpoint, LearningRateScheduler
+from cytomine import Cytomine, CytomineJob
+from keras.callbacks import LearningRateScheduler
 from sldc import StandardOutputLogger, Logger
 
 from cell_counting.cnn_methods import lr_scheduler, FCRN
@@ -87,8 +86,10 @@ def train(argv):
     parser.add_argument('--cnn_architecture', '--architecture', dest='cnn_architecture',
                         type=str, choices=['FCRN-A', 'FCRN-B'], default='FCRN-A')
     parser.add_argument('--cnn_initializer', '--initializer', dest='cnn_initializer', type=str, default='orthogonal')
-    parser.add_argument('--cnn_batch_normalization', '--batch_normalization', dest='cnn_batch_normalization', type=str, default=True)
-    parser.add_argument('--cnn_learning_rate', '--learning_rate', '--lr', dest='cnn_learning_rate', type=float, default=0.01)
+    parser.add_argument('--cnn_batch_normalization', '--batch_normalization', dest='cnn_batch_normalization', type=str,
+                        default=True)
+    parser.add_argument('--cnn_learning_rate', '--learning_rate', '--lr', dest='cnn_learning_rate', type=float,
+                        default=0.01)
     parser.add_argument('--cnn_momentum', '--momentum', dest='cnn_momentum', type=float, default=0.9)
     parser.add_argument('--cnn_nesterov', '--nesterov', dest='cnn_nesterov', type=str, default=True)
     parser.add_argument('--cnn_decay', '--decay', dest='cnn_decay', type=float, default=0.0)
@@ -105,7 +106,8 @@ def train(argv):
     parser.add_argument('--aug_horizontal_flip', dest='horizontal_flip', type=bool, default=False)
     parser.add_argument('--aug_vertical_flip', dest='vertical_flip', type=bool, default=False)
     parser.add_argument('--aug_featurewise_center', dest='featurewise_center', type=bool, default=False)
-    parser.add_argument('--aug_featurewise_std_normalization', dest='featurewise_std_normalization', type=bool, default=False)
+    parser.add_argument('--aug_featurewise_std_normalization', dest='featurewise_std_normalization', type=bool,
+                        default=False)
 
     # Execution
     parser.add_argument('--n_jobs', dest='n_jobs', type=int, default=1, help="Number of jobs")
@@ -124,13 +126,14 @@ def train(argv):
     params.augmentation = str2bool(params.augmentation)
 
     d = 8. if params.cnn_architecture == 'FCRN-A' else 4.
-    params.sw_size = (int(np.ceil(params.sw_input_size/d)+d), int(np.ceil(params.sw_input_size/d)+d))
+    params.sw_size = (int(np.ceil(params.sw_input_size / d) * d), int(np.ceil(params.sw_input_size / d) * d))
     params.sw_input_size = params.sw_size
     params.sw_output_size = params.sw_size
     params.sw_colorspace = params.sw_colorspace.split(' ')
     params.sw_extr_mode = 'random'
     params.cnn_regularizer = None
     params.mean_radius = 2
+    params.k_factor = 100
 
     if params.augmentation:
         params.rotation_range = check_default(params.rotation_range, 30., return_list=False)
@@ -149,21 +152,17 @@ def train(argv):
     for key, val in sorted(vars(params).iteritems()):
         logger.info("[PARAMETER] {}: {}".format(key, val))
 
-    # Initialize Cytomine client
-    cytomine = Cytomine(
-        params.cytomine_host,
-        params.cytomine_public_key,
-        params.cytomine_private_key,
-        working_path=params.cytomine_working_path,
-        base_path=params.cytomine_base_path,
-        verbose=(params.verbose >= Logger.DEBUG)
-    )
-
     # Start job
-    with CytomineJob(cytomine,
+    with CytomineJob(params.cytomine_host,
+                     params.cytomine_public_key,
+                     params.cytomine_private_key,
                      params.cytomine_software,
                      params.cytomine_project,
-                     parameters=vars(params)) as job:
+                     parameters=vars(params),
+                     working_path=params.cytomine_working_path,
+                     base_path=params.cytomine_base_path,
+                     verbose=(params.verbose >= Logger.DEBUG)) as job:
+        cytomine = job
         cytomine.update_job_status(job.job, status_comment="Starting...", progress=0)
 
         cytomine.update_job_status(job.job, status_comment="Loading training set...", progress=1)
@@ -210,4 +209,5 @@ def train(argv):
 
 if __name__ == '__main__':
     import sys
+
     train(sys.argv[1:])

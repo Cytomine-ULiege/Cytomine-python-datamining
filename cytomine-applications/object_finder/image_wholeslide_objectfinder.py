@@ -31,11 +31,51 @@ import cv2
 import pickle
 
 from cytomine import Cytomine, models
-from cytomine_utilities.filter import AdaptiveThresholdFilter, BinaryFilter, OtsuFilter
-from cytomine_utilities.objectfinder import ObjectFinder
-from cytomine_utilities.reader import Bounds, CytomineReader
-from cytomine_utilities.utils import Utils
-from cytomine_utilities.wholeslide import WholeSlide
+from cytomine.utilities import ObjectFinder, WholeSlide, get_geometries
+from cytomine.utilities.reader import Bounds, CytomineReader
+
+class Filter(object):
+    def __init__(self):
+        return
+
+    def process(self, image):
+        raise NotImplementedError("Should have implemented this")
+
+
+class AdaptiveThresholdFilter(Filter):
+    def __init__(self, block_size=71, c=3):
+        super(Filter, self).__init__()
+        self.block_size = block_size
+        self.c = c
+
+    def process(self, image):
+        image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        image_gray = cv2.adaptiveThreshold(image_gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV,
+                                           self.block_size, self.c)
+        return image_gray
+
+
+class BinaryFilter(Filter):
+    def __init__(self, threshold=128):
+        super(Filter, self).__init__()
+        self.threshold = threshold
+
+    def process(self, image):
+        image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        image_gray = cv2.threshold(image_gray, self.threshold, 255, cv2.THRESH_BINARY_INV)
+        return image_gray
+
+
+class OtsuFilter(Filter):
+    def __init__(self, threshold=128):
+        super(Filter, self).__init__()
+        self.threshold = threshold
+
+    def process(self, image):
+        image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        image_gray = cv2.threshold(image_gray, self.threshold, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
+        return image_gray
+
 
 
 #Parameter values are now set through command-line
@@ -192,7 +232,7 @@ def main(argv):
         components = ObjectFinder(filtered_cv_image).find_components()
         #Convert local coordinates (from the tile image) to global coordinates (the whole slide)
         components = whole_slide.convert_to_real_coordinates(whole_slide, components, reader.window_position, reader.zoom)
-        geometries.extend(Utils().get_geometries(components, parameters['cytomine_min_area'], parameters['cytomine_max_area']))
+        geometries.extend(get_geometries(components, parameters['cytomine_min_area'], parameters['cytomine_max_area']))
             
         
         #Upload annotations (geometries corresponding to connected components) to Cytomine core

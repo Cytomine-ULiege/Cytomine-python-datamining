@@ -17,32 +17,28 @@
 # */
 
 
-__author__          = "Maree Raphael <raphael.maree@ulg.ac.be>"
-__copyright__       = "Copyright 2010-2015 University of Liege, Belgium, http://www.cytomine.be/"
-
+__author__ = "Maree Raphael <raphael.maree@ulg.ac.be>"
+__copyright__ = "Copyright 2010-2015 University of Liege, Belgium, http://www.cytomine.be/"
 
 import cytomine
-import sys
 
-#Connect to cytomine, edit connection values
-cytomine_host="XXX"
-cytomine_public_key="XXX"
-cytomine_private_key="XXX"
-id_project=XXX
+# Connect to cytomine, edit connection values
+cytomine_host = "XXX"
+cytomine_public_key = "XXX"
+cytomine_private_key = "XXX"
+id_project = XXX
 
+# Connection to Cytomine Core
+conn = cytomine.Cytomine(cytomine_host, cytomine_public_key, cytomine_private_key, base_path='/api/',
+                         working_path='/tmp/', verbose=True)
 
-#Connection to Cytomine Core
-conn = cytomine.Cytomine(cytomine_host, cytomine_public_key, cytomine_private_key, base_path = '/api/', working_path = '/tmp/', verbose= True)
-
-
-#define software parameter template
-software = conn.add_software("Detect_Sample", "pyxitSuggestedTermJobService","ValidateAnnotation")
+# define software parameter template
+software = conn.add_software("Detect_Sample", "pyxitSuggestedTermJobService", "ValidateAnnotation")
 conn.add_software_parameter("cytomine_max_image_size", software.id, "Number", 0, True, 10, False)
 conn.add_software_parameter("cytomine_erode_iterations", software.id, "Number", 0, True, 30, False)
 conn.add_software_parameter("cytomine_dilate_iterations", software.id, "Number", 0, True, 40, False)
 conn.add_software_parameter("cytomine_athreshold_constant", software.id, "Number", 0, True, 50, False)
 conn.add_software_parameter("cytomine_athreshold_blocksize", software.id, "Number", 0, True, 60, False)
 
-
-#add software to a given project
-addSoftwareProject = conn.add_software_project(id_project,software.id)
+# add software to a given project
+addSoftwareProject = conn.add_software_project(id_project, software.id)

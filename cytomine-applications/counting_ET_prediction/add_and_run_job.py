@@ -20,13 +20,12 @@ import tempfile
 from argparse import ArgumentParser
 
 import numpy as np
-from cytomine import Cytomine
+from cytomine import Cytomine, CytomineJob
 from cytomine.models import AnnotationCollection, Annotation
-from cytomine_utilities import CytomineJob
 from sldc import StandardOutputLogger, Logger
 
-from cell_counting.utils import make_dirs, params_remove_none, str2int
 from cell_counting.cytomine_utils import upload_annotations
+from cell_counting.utils import make_dirs, params_remove_none, str2int
 
 __author__ = "Rubens Ulysse <urubens@uliege.be>"
 __copyright__ = "Copyright 2010-2017 University of Liège, Belgium, http://www.cytomine.be/"
@@ -87,21 +86,17 @@ def predict(argv):
     for key, val in sorted(vars(params).iteritems()):
         logger.info("[PARAMETER] {}: {}".format(key, val))
 
-    # Initialize Cytomine client
-    cytomine = Cytomine(
-        params.cytomine_host,
-        params.cytomine_public_key,
-        params.cytomine_private_key,
-        working_path=params.cytomine_working_path,
-        base_path=params.cytomine_base_path,
-        verbose=(params.verbose >= Logger.DEBUG)
-    )
-
     # Start job
-    with CytomineJob(cytomine,
+    with CytomineJob(params.cytomine_host,
+                     params.cytomine_public_key,
+                     params.cytomine_private_key,
                      params.cytomine_software,
                      params.cytomine_project,
-                     parameters=vars(params_remove_none(params))) as job:
+                     parameters=vars(params),
+                     working_path=params.cytomine_working_path,
+                     base_path=params.cytomine_base_path,
+                     verbose=(params.verbose >= Logger.DEBUG)) as job:
+        cytomine = job
         cytomine.update_job_status(job.job, status_comment="Starting...", progress=0)
 
         cytomine.update_job_status(job.job, status_comment="Loading model...", progress=1)
@@ -160,4 +155,5 @@ def predict(argv):
 
 if __name__ == '__main__':
     import sys
+
     predict(sys.argv[1:])

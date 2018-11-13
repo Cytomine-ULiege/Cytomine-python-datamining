@@ -17,25 +17,23 @@
 # */
 
 
-__author__          = "Marée Raphael <raphael.maree@ulg.ac.be>"
-__copyright__       = "Copyright 2010-2015 University of Liège, Belgium, http://www.cytomine.be/"
-
+__author__ = "Marée Raphael <raphael.maree@ulg.ac.be>"
+__copyright__ = "Copyright 2010-2015 University of Liège, Belgium, http://www.cytomine.be/"
 
 import cytomine
-import sys
 
-#Connect to cytomine, edit connection values
-cytomine_host="XXX"
-cytomine_public_key="XXX"
-cytomine_private_key="XXX"
-id_project=XXX
+# Connect to cytomine, edit connection values
+cytomine_host = "XXX"
+cytomine_public_key = "XXX"
+cytomine_private_key = "XXX"
+id_project = XXX
 
-#Connection to Cytomine Core
-conn = cytomine.Cytomine(cytomine_host, cytomine_public_key, cytomine_private_key, base_path = '/api/', working_path = '/tmp/', verbose= True)
+# Connection to Cytomine Core
+conn = cytomine.Cytomine(cytomine_host, cytomine_public_key, cytomine_private_key, base_path='/api/',
+                         working_path='/tmp/', verbose=True)
 
-
-#define software parameter template
-software = conn.add_software("Object_Finder", "pyxitSuggestedTermJobService","ValidateAnnotation")
+# define software parameter template
+software = conn.add_software("Object_Finder", "pyxitSuggestedTermJobService", "ValidateAnnotation")
 conn.add_software_parameter("cytomine_zoom_level", software.id, "Number", 0, True, 10, False)
 conn.add_software_parameter("cytomine_filter", software.id, "String", "adaptive", True, 20, False)
 conn.add_software_parameter("cytomine_tile_size", software.id, "Number", 512, True, 50, False)
@@ -50,5 +48,5 @@ conn.add_software_parameter("cytomine_union_max_point", software.id, "Number", 1
 conn.add_software_parameter("cytomine_union_nb_zones_width", software.id, "Number", 5, True, 200, False)
 conn.add_software_parameter("cytomine_union_nb_zones_height", software.id, "Number", 5, True, 210, False)
 
-#add software to a given project
-addSoftwareProject = conn.add_software_project(id_project,software.id)
+# add software to a given project
+addSoftwareProject = conn.add_software_project(id_project, software.id)

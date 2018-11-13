@@ -4,14 +4,13 @@ import tempfile
 from argparse import ArgumentParser
 
 import numpy as np
-from cytomine import Cytomine
-from cytomine_utilities import CytomineJob
+from cytomine import Cytomine, CytomineJob
 from sldc import StandardOutputLogger, Logger
 
 from cell_counting.cytomine_utils import get_dataset
-from cell_counting.utils import make_dirs,check_max_features, params_remove_none, \
-    str2bool, str2int, str2float
 from cell_counting.extratrees_methods import CellCountRandomizedTrees
+from cell_counting.utils import make_dirs, check_max_features, params_remove_none, \
+    str2bool, str2int, str2float
 
 __author__ = "Ulysse Rubens <urubens@uliege.be>"
 __version__ = "0.1"
@@ -133,21 +132,17 @@ def train(argv):
     for key, val in sorted(vars(params).iteritems()):
         logger.info("[PARAMETER] {}: {}".format(key, val))
 
-    # Initialize Cytomine client
-    cytomine = Cytomine(
-        params.cytomine_host,
-        params.cytomine_public_key,
-        params.cytomine_private_key,
-        working_path=params.cytomine_working_path,
-        base_path=params.cytomine_base_path,
-        verbose=(params.verbose >= Logger.DEBUG)
-    )
-
     # Start job
-    with CytomineJob(cytomine,
+    with CytomineJob(params.cytomine_host,
+                     params.cytomine_public_key,
+                     params.cytomine_private_key,
                      params.cytomine_software,
                      params.cytomine_project,
-                     parameters=vars(params_remove_none(params))) as job:
+                     parameters=vars(params),
+                     working_path=params.cytomine_working_path,
+                     base_path=params.cytomine_base_path,
+                     verbose=(params.verbose >= Logger.DEBUG)) as job:
+        cytomine = job
         cytomine.update_job_status(job.job, status_comment="Starting...", progress=0)
         logger.i("Starting...")
 

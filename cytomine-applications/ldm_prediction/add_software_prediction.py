@@ -35,18 +35,18 @@ conn = cytomine.Cytomine(cytomine_host, cytomine_public_key, cytomine_private_ke
 
 
 #Generic
-execute_command = "python /software_router/algo/ldm_prediction/landmark_generic_predict.py " + \"
-                  "--cytomine_host $host " + \
-                  "--cytomine_public_key $publicKey " + \
-                  "--cytomine_private_key $privateKey " + \
-                  "--cytomine_base_path /api/ " + \ 
-                  "--cytomine_working_path /software_router/algo/ldm_model_builder/ " + \
-                  "--cytomine_id_software $cytomine_id_software " + \
-                  "--cytomine_id_project $cytomine_id_project " + \
-                  "--cytomine_predict_images $cytomine_predict_images " + \
-                  "--model_load_from /software_router/algo/ldm_model_builder/ " + \
-                  "--image_type jpg " + \
-                  "--model_names $model_names " + \
+execute_command = "python /software_router/algo/ldm_prediction/landmark_generic_predict.py " \
+                  "--cytomine_host $host " \
+                  "--cytomine_public_key $publicKey " \
+                  "--cytomine_private_key $privateKey " \
+                  "--cytomine_base_path /api/ " \ 
+                  "--cytomine_working_path /software_router/algo/ldm_model_builder/ " \
+                  "--cytomine_id_software $cytomine_id_software " \
+                  "--cytomine_id_project $cytomine_id_project " \
+                  "--cytomine_predict_images $cytomine_predict_images " \
+                  "--model_load_from /software_router/algo/ldm_model_builder/ " \
+                  "--image_type jpg " \
+                  "--model_names $model_names " \
                   "--verbose true"
 software = conn.add_software("Landmark_Generic_Predictor", "createRabbitJobWithArgsService","ValidateAnnotation", execute_command)
 conn.add_software_parameter("model_names",             software.id, "String", None, True, 1 , False)
@@ -58,18 +58,18 @@ addSoftwareProject = conn.add_software_project(id_project,software.id)
 print "Generic Prediction Software id is %d"%software.id
 
 #DMBL
-execute_command = "python /software_router/algo/ldm_prediction/landmark_dmbl_predict.py " + \ "
-                  "--cytomine_host $host " + \
-                  "--cytomine_public_key $publicKey " + \
-                  "--cytomine_private_key $privateKey " + \
-                  "--cytomine_base_path /api/ " + \
-                  "--cytomine_working_path /software_router/algo/ldm_model_builder/ " + \
-                  "--cytomine_id_software $cytomine_id_software " + \
-                  "--cytomine_id_project $cytomine_id_project " + \
-                  "--cytomine_predict_images $cytomine_predict_images " + \
-                  "--model_load_from /software_router/algo/ldm_model_builder/ " + \
-                  "--image_type jpg " + \
-                  "--model_name $model_name " + \
+execute_command = "python /software_router/algo/ldm_prediction/landmark_dmbl_predict.py " \ 
+                  "--cytomine_host $host " \
+                  "--cytomine_public_key $publicKey " \
+                  "--cytomine_private_key $privateKey " \
+                  "--cytomine_base_path /api/ " \
+                  "--cytomine_working_path /software_router/algo/ldm_model_builder/ " \
+                  "--cytomine_id_software $cytomine_id_software " \
+                  "--cytomine_id_project $cytomine_id_project " \
+                  "--cytomine_predict_images $cytomine_predict_images " \
+                  "--model_load_from /software_router/algo/ldm_model_builder/ " \
+                  "--image_type jpg " \
+                  "--model_name $model_name " \
                   "--verbose true"             
 software = conn.add_software("Landmark_DMBL_Predictor", "createRabbitJobWithArgsService","ValidateAnnotation", execute_command)
 conn.add_software_parameter("model_name",             software.id, "String", None, True, 1 , False)
@@ -82,17 +82,17 @@ print "DMBL Prediction Software id is %d"%software.id
 
 
 #LC
-execute_command = "python /software_router/algo/ldm_prediction/landmark_lc_predict.py " + \
-                  "--cytomine_host $host --cytomine_public_key $publicKey "+
-                  "--cytomine_private_key $privateKey " + \
-                  "--cytomine_base_path /api/ " + \
-                  "--cytomine_working_path /software_router/algo/ldm_model_builder/ " + \
-                  "--cytomine_id_software $cytomine_id_software " + \
-                  "--cytomine_id_project $cytomine_id_project " + \
-                  "--cytomine_predict_images $cytomine_predict_images " + \
-                  "--model_load_from /software_router/algo/ldm_model_builder/ " + \
-                  "--image_type jpg " + \
-                  "--model_name $model_name " + \
+execute_command = "python /software_router/algo/ldm_prediction/landmark_lc_predict.py " \
+                  "--cytomine_host $host --cytomine_public_key $publicKey " \
+                  "--cytomine_private_key $privateKey " \
+                  "--cytomine_base_path /api/ " \
+                  "--cytomine_working_path /software_router/algo/ldm_model_builder/ " \
+                  "--cytomine_id_software $cytomine_id_software " \
+                  "--cytomine_id_project $cytomine_id_project " \
+                  "--cytomine_predict_images $cytomine_predict_images " \
+                  "--model_load_from /software_router/algo/ldm_model_builder/ " \
+                  "--image_type jpg " \
+                  "--model_name $model_name " \
                   "--verbose true"
 software = conn.add_software("Landmark_LC_Predictor", "createRabbitJobWithArgsService","ValidateAnnotation", execute_command)
 conn.add_software_parameter("model_name",             software.id, "String", None, True, 1 , False)

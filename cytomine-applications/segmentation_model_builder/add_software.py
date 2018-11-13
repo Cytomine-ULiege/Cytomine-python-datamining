@@ -17,27 +17,25 @@
 # */
 
 
-__author__          = "Marée Raphael <raphael.maree@ulg.ac.be>"
-__contributors__    = ["Stévens Benjamin <b.stevens@ulg.ac.be>"]
-__copyright__       = "Copyright 2010-2015 University of Liège, Belgium, http://www.cytomine.be/"
-
+__author__ = "Marée Raphael <raphael.maree@ulg.ac.be>"
+__contributors__ = ["Stévens Benjamin <b.stevens@ulg.ac.be>"]
+__copyright__ = "Copyright 2010-2015 University of Liège, Belgium, http://www.cytomine.be/"
 
 import cytomine
-import sys
 
-#connect to cytomine
+# connect to cytomine
 
-cytomine_host="XXX"
-cytomine_public_key="XXX"
-cytomine_private_key="XXX"
-id_project=0
+cytomine_host = "XXX"
+cytomine_public_key = "XXX"
+cytomine_private_key = "XXX"
+id_project = 0
 
-#Connection to Cytomine Core
-conn = cytomine.Cytomine(cytomine_host, cytomine_public_key, cytomine_private_key, base_path = '/api/', working_path = '/tmp/', verbose= True)
+# Connection to Cytomine Core
+conn = cytomine.Cytomine(cytomine_host, cytomine_public_key, cytomine_private_key, base_path='/api/',
+                         working_path='/tmp/', verbose=True)
 
-
-#define software parameter template
-software = conn.add_software("Segmentation_Model_Builder", "pyxitSuggestedTermJobService","ValidateAnnotation")
+# define software parameter template
+software = conn.add_software("Segmentation_Model_Builder", "pyxitSuggestedTermJobService", "ValidateAnnotation")
 conn.add_software_parameter("pyxit_target_width", software.id, "Number", 16, True, 500, False)
 conn.add_software_parameter("pyxit_target_height", software.id, "Number", 16, True, 600, False)
 conn.add_software_parameter("pyxit_n_subwindows", software.id, "Number", 10, True, 200, False)
@@ -56,9 +54,5 @@ conn.add_software_parameter("cytomine_excluded_terms", software.id, "List", 0, T
 conn.add_software_parameter("cytomine_zoom_level", software.id, "Number", 0, True, 1500, False)
 conn.add_software_parameter("cytomine_reviewed", software.id, "Boolean", "false", True, 1600, False)
 
-#add software to a given project
-addSoftwareProject = conn.add_software_project(id_project,software.id)
-
-
-
-
+# add software to a given project
+addSoftwareProject = conn.add_software_project(id_project, software.id)

@@ -41,12 +41,14 @@ def install_CNN_ObjectCounter_Model_builder(cytomine, software_router, software_
     software.add_parameter("cytomine_object_term", "Domain", "", required=True,
                            uri="/api/project/$currentProject$/term.json", uri_print_attr="name", uri_sort_attr="name")
     software.add_parameter("cytomine_object_user", "Domain", "", required=False,
-                           uri="/api/project/$currentProject$/user.json", uri_print_attr="username", uri_sort_attr="username")
+                           uri="/api/project/$currentProject$/user.json", uri_print_attr="username",
+                           uri_sort_attr="username")
     software.add_parameter("cytomine_object_reviewed_only", bool, False, required=False)
     software.add_parameter("cytomine_roi_term", "Domain", "", required=True,
                            uri="/api/project/$currentProject$/term.json", uri_print_attr="name", uri_sort_attr="name")
     software.add_parameter("cytomine_roi_user", "Domain", "", required=False,
-                           uri="/api/project/$currentProject$/user.json", uri_print_attr="username", uri_sort_attr="username")
+                           uri="/api/project/$currentProject$/user.json", uri_print_attr="username",
+                           uri_sort_attr="username")
     software.add_parameter("cytomine_roi_reviewed_only", bool, False, required=False)
 
     software.add_parameter("pre_transformer", str, default_value="density", required=False)

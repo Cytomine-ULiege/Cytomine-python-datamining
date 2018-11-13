@@ -14,9 +14,9 @@
 # * See the License for the specific language governing permissions and
 # * limitations under the License.
 
-from argparse import ArgumentParser
 import os
 import sys
+from argparse import ArgumentParser
 
 from cytomine import Cytomine
 
